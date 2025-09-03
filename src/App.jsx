@@ -66,7 +66,9 @@ export default function App() {
 
       {/* Loading Indicator */}
       {loading && (
-        <p className="text-center text-gray-600 mb-4">Loading recipes...</p>
+        <div className="flex justify-center mb-6">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       )}
 
       {/* Recipe Cards */}
