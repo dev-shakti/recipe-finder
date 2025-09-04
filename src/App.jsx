@@ -1,41 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import RecipeCard from "./components/RecipeCard";
+import SearchBar from "./components/SearchBar";
+import Loader from "./components/Loader";
 
 export default function App() {
-  const [ingredient, setIngredient] = useState(""); // user input
-  const [recipes, setRecipes] = useState([]); // fetched recipes
+  const [searchText, setSearchText] = useState("chicken"); 
+  const [recipes, setRecipes] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch recipes from API
-  async function fetchRecipes() {
-    if (!ingredient) return;
-    setLoading(true);
-    setError(""); // clear old error
-
-    try {
-      const res = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch recipes");
+  useEffect(() => {
+    // Fetch recipes from API
+    async function fetchRecipes() {
+      if (!searchText.trim()) {
+        setRecipes([]); // clear recipes when input is empty
+        return;
       }
+      setLoading(true);
+      setError(""); // clear old error
 
-      const data = await res.json();
+      try {
+        const res = await fetch(
+          `https://www.themealdb.com/api/json/v1/1/filter.php?i=${searchText}`
+        );
 
-      if (!data.meals) {
-        setRecipes([]);
-        setError("No recipes found for that ingredient.");
-      } else {
-        setRecipes(data.meals);
+        if (!res.ok) {
+          throw new Error("Failed to fetch recipes");
+        }
+
+        const data = await res.json();
+
+
+        if (!data.meals) {
+          setRecipes([]);
+          setError("No recipes found for that ingredient.");
+        } else {
+          setRecipes(data.meals);
+        }
+       
+      } catch (err) {
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
       }
-      console.log(data.meals);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
     }
-  }
+    fetchRecipes();
+  }, [searchText]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -43,21 +53,7 @@ export default function App() {
       <h1 className="text-3xl font-bold text-center mb-6">🍳 Recipe Finder</h1>
 
       {/* Search Bar */}
-      <div className="flex justify-center mb-6">
-        <input
-          type="text"
-          placeholder="Enter an ingredient (e.g. chicken)"
-          value={ingredient}
-          onChange={(e) => setIngredient(e.target.value)}
-          className="border rounded-l-lg p-2 w-64"
-        />
-        <button
-          onClick={fetchRecipes}
-          className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600"
-        >
-          {loading ? "Searching..." : "Search"}
-        </button>
-      </div>
+      <SearchBar searchText={searchText} setSearchText={setSearchText} />
 
       {/* Error Message */}
       {error && (
@@ -65,35 +61,13 @@ export default function App() {
       )}
 
       {/* Loading Indicator */}
-      {loading && (
-        <div className="flex justify-center mb-6">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      )}
+      {loading && <Loader />}
 
       {/* Recipe Cards */}
       {!loading && !error && recipes.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {recipes.map((meal) => (
-            <div
-              key={meal.idMeal}
-              className="bg-white rounded-xl shadow p-4 hover:scale-105 transition"
-            >
-              <img
-                src={meal.strMealThumb}
-                alt={meal.strMeal}
-                className="rounded-lg mb-3"
-              />
-              <h2 className="text-lg font-semibold mb-2">{meal.strMeal}</h2>
-              <a
-                href={`https://www.themealdb.com/meal/${meal.idMeal}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                View Recipe →
-              </a>
-            </div>
+            <RecipeCard meal={meal} key={meal.idMeal} />
           ))}
         </div>
       )}
