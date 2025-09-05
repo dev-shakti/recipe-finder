@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 
-export default function SearchBar({ searchText, setSearchText, ingredients }) {
+export default function SearchBar({ searchText, setSearchText, options=[] }) {
   const [showDropdown, setShowDropdown] = useState(false);
 
-    const filtered = ingredients?.filter((item) =>
+    const filtered = options?.filter((item) =>
     item.toLowerCase().includes(searchText.toLowerCase())
   );
   

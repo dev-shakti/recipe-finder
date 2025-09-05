@@ -11,7 +11,11 @@ export default function App() {
   const [error, setError] = useState("");
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [filterType, setFilterType] = useState("i");
+
   const [ingredients, setIngredients] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [areas, setAreas] = useState([]);
 
   // Fetch single meal detail
   async function fetchMealDetail(idMeal) {
@@ -31,21 +35,32 @@ export default function App() {
     }
   }
 
-  // Fetch ingredient list once
-  useEffect(() => {
-    async function fetchIngredients() {
-      try {
-        const res = await fetch(
-          "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
-        );
-        const data = await res.json();
-        setIngredients(data.meals.map((item) => item.strIngredient));
-      } catch (err) {
-        console.error("Failed to fetch ingredients", err);
-      }
+  // Fetch ingredient,category,area list once
+useEffect(() => {
+  async function fetchLists() {
+    try {
+      const [ingRes, catRes, areaRes] = await Promise.all([
+        fetch("https://www.themealdb.com/api/json/v1/1/list.php?i=list"),
+        fetch("https://www.themealdb.com/api/json/v1/1/list.php?c=list"),
+        fetch("https://www.themealdb.com/api/json/v1/1/list.php?a=list"),
+      ]);
+
+      const [ingData, catData, areaData] = await Promise.all([
+        ingRes.json(),
+        catRes.json(),
+        areaRes.json(),
+      ]);
+
+      setIngredients(ingData.meals.map((item) => item.strIngredient));
+      setCategories(catData.meals.map((item) => item.strCategory));
+      setAreas(areaData.meals.map((item) => item.strArea));
+    } catch (err) {
+      console.error("Failed to fetch filter lists", err);
     }
-    fetchIngredients();
-  }, []);
+  }
+  fetchLists();
+}, []);
+
 
   useEffect(() => {
     // Fetch recipes from API
@@ -59,7 +74,7 @@ export default function App() {
 
       try {
         const res = await fetch(
-          `https://www.themealdb.com/api/json/v1/1/filter.php?i=${searchText}`
+          `https://www.themealdb.com/api/json/v1/1/filter.php?${filterType}=${searchText}`
         );
 
         if (!res.ok) {
@@ -70,7 +85,7 @@ export default function App() {
 
         if (!data.meals) {
           setRecipes([]);
-          setError("No recipes found for that ingredient.");
+           setError("No recipes found for your search.");
         } else {
           setRecipes(data.meals);
         }
@@ -81,8 +96,11 @@ export default function App() {
       }
     }
     fetchRecipes();
-  }, [searchText]);
-console.log(ingredients)
+  }, [searchText, filterType]);
+
+  const currentOptions =
+    filterType === "i" ? ingredients : filterType === "c" ? categories : areas;
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
@@ -92,8 +110,21 @@ console.log(ingredients)
       <SearchBar
         searchText={searchText}
         setSearchText={setSearchText}
-        ingredients={ingredients}
+        options={currentOptions}
       />
+
+      {/* Filter Type Dropdown */}
+      <div className="flex justify-end mb-4">
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="border p-2 rounded-md"
+        >
+          <option value="i">Ingredient</option>
+          <option value="c">Category</option>
+          <option value="a">Area (Cuisine)</option>
+        </select>
+      </div>
 
       {/* Error Message */}
       {error && (
