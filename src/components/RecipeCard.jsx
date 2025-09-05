@@ -1,8 +1,9 @@
-export default function RecipeCard({meal}) {
+export default function RecipeCard({meal,onSelect}) {
   return (
     <div
       key={meal.idMeal}
-      className="bg-white rounded-xl shadow p-4 hover:scale-105 transition"
+       onClick={onSelect}
+      className="bg-white rounded-xl shadow p-4 hover:scale-105 transition cursor-pointer"
     >
       <img
         src={meal.strMealThumb}
