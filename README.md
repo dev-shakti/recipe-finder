@@ -21,6 +21,16 @@ Users can search by **ingredient, category, or area**, view results in a clean c
 - **TheMealDB API** (recipe data)
 
 ---
+### Level 1 – Working with AI
+
+I used **ChatGPT** to brainstorm and refine the solution:
+
+- Breaking down user needs into features
+- Generating starter code with React + Tailwind
+- Creating reusable components
+- Handling API calls and edge cases
+
+👉 [View ChatGPT Conversation](https://chatgpt.com/share/68bc79e1-6e68-800b-873a-f25936c6cf7f)
 
 
 
