@@ -32,6 +32,11 @@ I used **ChatGPT** to brainstorm and refine the solution:
 
 👉 [View ChatGPT Conversation](https://chatgpt.com/share/68bc79e1-6e68-800b-873a-f25936c6cf7f)
 
+### Live Demo
+
+Check out the working app on CodeSandbox:  
+👉 [View Live Demo](https://4tzzl3-5173.csb.app)
+
 
 
 
